@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario Cambio de Guardia</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ff7f2a;
+      padding: 20px;
+      color: #000;
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+    select, input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #000;
+      color: white;
+      border: none;
+      width: 100%;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Formulario de Cambio de Guardia</h1>
+
+  <form id="formularioReporte">
+
+    <label>Nombre completo (obligatorio)</label>
+    <input type="text" name="nombre" required>
+
+    <label>Correo electrónico (obligatorio)</label>
+    <input type="email" name="correo" required>
+
+    <label>Turno (obligatorio)</label>
+    <select name="turno" required>
+      <option value="">Seleccionar</option>
+      <option>TURNO DÍA</option>
+      <option>TURNO NOCHE</option>
+    </select>
+
+    <label>Área de trabajo (obligatorio)</label>
+    <select name="area" required onchange="mostrarSubarea(this.value)">
+      <option value="">Seleccionar</option>
+      <option value="PROCESOS">PROCESOS</option>
+      <option value="CMOP">CMOP</option>
+    </select>
+
+    <div id="subareaCMOP" style="display: none;">
+      <label>Seleccione subárea</label>
+      <select name="subarea">
+        <option>AREA 1</option>
+        <option>AREA 2</option>
+        <option>AREA 3</option>
+      </select>
+    </div>
+
+    <div id="subareaPROCESOS" style="display: none;">
+      <label>Describa el área</label>
+      <input type="text" name="subareaTexto">
+    </div>
+
+    <label>Trabajo realizado (obligatorio)</label>
+    <textarea name="trabajo" required></textarea>
+
+    <label>¿Se retiró material de almacén? (opcional)</label>
+    <select name="retiro" onchange="mostrarMaterial(this.value)">
+      <option value="">Seleccionar</option>
+      <option>SI</option>
+      <option>NO</option>
+    </select>
+
+    <div id="materialCampo" style="display: none;">
+      <label>¿Qué material?</label>
+      <textarea name="material"></textarea>
+    </div>
+
+    <label>Reporte del turno (opcional, máx. 5000 caracteres)</label>
+    <textarea name="reporte" maxlength="5000"></textarea>
+
+    <label>Adjuntar documento (opcional, no se sube aún)</label>
+    <input type="file" name="adjunto" accept=".pdf,.jpg,.jpeg">
+
+    <button type="submit">Enviar Reporte</button>
+  </form>
+
+  <script>
+    function mostrarSubarea(area) {
+      document.getElementById("subareaCMOP").style.display = area === "CMOP" ? "block" : "none";
+      document.getElementById("subareaPROCESOS").style.display = area === "PROCESOS" ? "block" : "none";
+    }
+
+    function mostrarMaterial(valor) {
+      document.getElementById("materialCampo").style.display = valor === "SI" ? "block" : "none";
+    }
+
+    document.getElementById("formularioReporte").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const data = {
+        nombre: form.nombre.value,
+        correo: form.correo.value,
+        turno: form.turno.value,
+        area: form.area.value,
+        subarea: form.area.value === "CMOP" ? form.subarea.value : form.subareaTexto.value,
+        trabajo: form.trabajo.value,
+        retiro: form.retiro.value,
+        material: form.material ? form.material.value : "",
+        reporte: form.reporte.value,
+        adjunto: ""
+      };
+
+      fetch("https://script.google.com/macros/s/AKfycbzFgHkIWGuLIBl_dPs9f9hd-yb4r8TqLrTB-v5XPUzHAEiCXfEvGiKmQXCaJ3WUoh6_/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(response => {
+        alert("✅ Formulario enviado correctamente");
+        form.reset();
+        document.getElementById("subareaCMOP").style.display = "none";
+        document.getElementById("subareaPROCESOS").style.display = "none";
+        document.getElementById("materialCampo").style.display = "none";
+      })
+      .catch(error => alert("❌ Error al enviar: " + error));
+    });
+  </script>
+
+</body>
+</html>
